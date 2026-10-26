@@ -24,13 +24,14 @@ hardware:
     compute_eff: 0.85      # calibration knobs
     mem_eff: 1.0
     step_overhead_ms: 3.7
-  hypothetical_big_gpu:    # fill from a public datasheet
-    peak_tflops: 400
-    mem_bw_gb_s: 183
+  hypothetical_big_gpu:
+    peak_tflops: 400          # PLACEHOLDER: fill from a public datasheet
+    mem_bw_gb_s: 3000         # PLACEHOLDER
     mem_capacity_gb: 80
     compute_eff: 0.6
     mem_eff: 0.8
-
+    interconnect_gb_s: 450   
+    link_latency_us: 5
 run:
   model: tinyllama_1b
   hardware: rtx3050_laptop

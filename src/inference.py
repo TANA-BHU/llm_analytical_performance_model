@@ -1,3 +1,5 @@
+from comm import ring_allreduce_s
+
 def _times(flops, nbytes, hw):
     t_c = flops / (hw.peak_tflops * 1e12 * hw.compute_eff)
     t_m = nbytes / (hw.mem_bw_gb_s * 1e9 * hw.mem_eff)
@@ -26,3 +28,19 @@ def prefill(m, hw, batch, prompt, weight_bytes, kv_bytes):
 def fits(m, hw, batch, ctx, weight_bytes, kv_bytes):
     need = m.params() * weight_bytes + batch * ctx * m.kv_bytes_per_token(kv_bytes)
     return need / 1e9 <= hw.mem_capacity_gb, need / 1e9
+
+
+def decode_step_tp(m, hw, batch, ctx, weight_bytes, kv_bytes, n, act_bytes=2):
+    p = m.params()
+    flops = (2 * p * batch + 4 * m.layers * m.heads * m.head_dim * ctx * batch) / n
+    nbytes = (p * weight_bytes + batch * ctx * m.kv_bytes_per_token(kv_bytes)) / n
+    t_c, t_m = _times(flops, nbytes, hw)
+    t_comm = 0.0
+    if n > 1:   # 2 all-reduces per layer (after attention, after FFN)
+        t_comm = 2 * m.layers * ring_allreduce_s(
+            batch * m.hidden * act_bytes, n, hw.interconnect_gb_s, hw.link_latency_us)
+    local = max(t_c, t_m)
+    t = local + t_comm + hw.step_overhead_ms * 1e-3
+    bound = "comm" if t_comm > local else ("compute" if t_c >= t_m else "memory")
+    return dict(ms=t * 1e3, compute_ms=t_c * 1e3, mem_ms=t_m * 1e3,
+                comm_ms=t_comm * 1e3, bound=bound, tokens_s=batch / t)
