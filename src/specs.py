@@ -19,6 +19,7 @@ class ModelSpec:
 class Hardware:
     peak_tflops: float; mem_bw_gb_s: float; mem_capacity_gb: float
     compute_eff: float = 1.0; mem_eff: float = 1.0
+    step_overhead_ms: float = 0.0
 
 def load(path="/home/elyssa/llm_analytical_performance_model/configs/experiment.yaml"):
     cfg = yaml.safe_load(open(path))

@@ -19,13 +19,14 @@ models:
 hardware:
   rtx3050_laptop:
     peak_tflops: 14.0      # measured fp16 GEMM
-    mem_bw_gb_s: 150       # replace with measured
+    mem_bw_gb_s: 183       # replace with measured
     mem_capacity_gb: 4
-    compute_eff: 1.0       # calibration knobs
+    compute_eff: 0.85      # calibration knobs
     mem_eff: 1.0
+    step_overhead_ms: 3.7
   hypothetical_big_gpu:    # fill from a public datasheet
     peak_tflops: 400
-    mem_bw_gb_s: 3000
+    mem_bw_gb_s: 183
     mem_capacity_gb: 80
     compute_eff: 0.6
     mem_eff: 0.8
