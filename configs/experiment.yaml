@@ -1,0 +1,40 @@
+models:
+  tinyllama_1b:        # fits your 4 GB GPU, so you can validate it
+    layers: 22
+    hidden: 2048
+    heads: 32
+    kv_heads: 4
+    head_dim: 64
+    ffn: 5632
+    vocab: 32000
+  llama3_8b:
+    layers: 32
+    hidden: 4096
+    heads: 32
+    kv_heads: 8
+    head_dim: 128
+    ffn: 14336
+    vocab: 128256
+
+hardware:
+  rtx3050_laptop:
+    peak_tflops: 14.0      # measured fp16 GEMM
+    mem_bw_gb_s: 150       # replace with measured
+    mem_capacity_gb: 4
+    compute_eff: 1.0       # calibration knobs
+    mem_eff: 1.0
+  hypothetical_big_gpu:    # fill from a public datasheet
+    peak_tflops: 400
+    mem_bw_gb_s: 3000
+    mem_capacity_gb: 80
+    compute_eff: 0.6
+    mem_eff: 0.8
+
+run:
+  model: tinyllama_1b
+  hardware: rtx3050_laptop
+  weight_bytes: 2        # fp16; try 1 (int8), 0.5 (int4)
+  kv_bytes: 2
+  batch: 1
+  prompt_len: 512
+  context_len: 512
